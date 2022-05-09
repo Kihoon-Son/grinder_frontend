@@ -6,6 +6,19 @@ import 'package:flutter/services.dart';
 
 enum MenuType { PurchaseLink, Information, Reviews, Add_comment }
 late VideoPlayerController controller;
+int totalDuration = 20800;
+
+int FSbanana = 0;
+int LSbanana = 5440;
+int FSTooth = 5440;
+int LSTooth = 8508;
+int FSSoap = 8508;
+int LSSoap = 13998;
+int FSTowel = 13998;
+int LSTowel = 20800;
+
+bool itemselected = false;
+int selectedItem = -1;
 
 main() {
   runApp(MyApp());
@@ -28,8 +41,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   var showDetail = false;
   double fps = 24.0;
-  double startX = 250;
-  double startY = 330;
+  double startX = 350;
+  double startY = 500;
 
   List predictionResult = [];
 
@@ -107,23 +120,23 @@ class _HomeState extends State<Home> {
                       children: [
                         // Video Player
                         Container(
-                          width: 480,
-                          height: 720,
                           margin: EdgeInsets.all(20),
                           child: AspectRatio(
                             aspectRatio: controller.value.aspectRatio,
                             child: VideoPlayer(controller),
                           ),
                         ),
-                        // Floating Btn
 
+                        // Floating Btn
                         Container(
                             // The specific location will be decided from the bbox.
                             margin:
-                                EdgeInsets.fromLTRB(startX++, startY++, 0, 0),
+                                EdgeInsets.fromLTRB(startX++, startY--, 0, 0),
                             width: 50,
                             height: 50,
-                            child: CustomFloatingBtn()),
+                            child: checkToothBrushCondition(FSTooth, LSTooth)
+                                ? CustomFloatingBtn()
+                                : null),
                       ],
                     ),
                     flex: 4),
@@ -142,6 +155,8 @@ class _HomeState extends State<Home> {
                                         controller.pause();
                                       } else {
                                         controller.play();
+                                        print(controller.value.position
+                                            .inMicroseconds.runtimeType);
                                       }
                                       setState(() {});
                                     },
@@ -165,131 +180,22 @@ class _HomeState extends State<Home> {
                         ],
                       ),
                       // Object Detection Timeline
-                      Row(
-                        children: [
-                          Container(
-                              width: 150,
-                              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                              child: Text(
-                                "Toothbrush",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 16),
-                              )),
-                          Container(
-                              width: 900,
-                              padding: EdgeInsets.fromLTRB(0, 0, 50, 0),
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    alignment: Alignment.center,
-                                    height: 15,
-                                    color: Color.fromARGB(105, 223, 223, 223),
-                                  ),
-                                  Container(
-                                    alignment: Alignment.center,
-                                    margin: EdgeInsets.fromLTRB(50, 0, 0, 0),
-                                    width: 240,
-                                    height: 15,
-                                    color: Color.fromARGB(249, 72, 202, 78),
-                                  ),
-                                  VideoProgressIndicator(controller,
-                                      allowScrubbing: true,
-                                      colors: VideoProgressColors(
-                                        playedColor: Color.fromRGBO(0, 0, 0, 0),
-                                        backgroundColor:
-                                            Color.fromARGB(0, 0, 0, 0),
-                                        bufferedColor:
-                                            Color.fromRGBO(0, 0, 0, 0),
-                                      ))
-                                ],
-                              )),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Container(
-                              width: 150,
-                              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                              child: Text(
-                                "Toothbrush",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 16),
-                              )),
-                          Container(
-                              width: 900,
-                              padding: EdgeInsets.fromLTRB(0, 0, 50, 0),
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    alignment: Alignment.center,
-                                    height: 15,
-                                    color: Color.fromARGB(105, 223, 223, 223),
-                                  ),
-                                  Container(
-                                    alignment: Alignment.center,
-                                    margin: EdgeInsets.fromLTRB(50, 0, 0, 0),
-                                    width: 240,
-                                    height: 15,
-                                    color: Color.fromARGB(249, 72, 202, 78),
-                                  ),
-                                  VideoProgressIndicator(controller,
-                                      allowScrubbing: true,
-                                      colors: VideoProgressColors(
-                                        playedColor: Color.fromRGBO(0, 0, 0, 0),
-                                        backgroundColor:
-                                            Color.fromARGB(0, 0, 0, 0),
-                                        bufferedColor:
-                                            Color.fromRGBO(0, 0, 0, 0),
-                                      ))
-                                ],
-                              )),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Container(
-                              width: 150,
-                              padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                              child: Text(
-                                "Toothbrush",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(fontSize: 16),
-                              )),
-                          Container(
-                              width: 900,
-                              padding: EdgeInsets.fromLTRB(0, 0, 50, 0),
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    alignment: Alignment.center,
-                                    height: 15,
-                                    color: Color.fromARGB(105, 223, 223, 223),
-                                  ),
-                                  Container(
-                                    alignment: Alignment.center,
-                                    margin: EdgeInsets.fromLTRB(50, 0, 0, 0),
-                                    width: 240,
-                                    height: 15,
-                                    color: Color.fromARGB(249, 72, 202, 78),
-                                  ),
-                                  VideoProgressIndicator(controller,
-                                      allowScrubbing: true,
-                                      colors: VideoProgressColors(
-                                        playedColor: Color.fromRGBO(0, 0, 0, 0),
-                                        backgroundColor:
-                                            Color.fromARGB(0, 0, 0, 0),
-                                        bufferedColor:
-                                            Color.fromRGBO(0, 0, 0, 0),
-                                      ))
-                                ],
-                              )),
-                        ],
-                      ),
-                      // Info Tab
+                      ObjectDetectionTimeline(
+                          objectName: "Vitamin",
+                          start: FSbanana,
+                          end: LSbanana),
+                      ObjectDetectionTimeline(
+                          objectName: "ToothBrush",
+                          start: FSTooth,
+                          end: LSTooth),
+                      ObjectDetectionTimeline(
+                          objectName: "Soap", start: FSSoap, end: LSSoap),
+                      ObjectDetectionTimeline(
+                          objectName: "Towel", start: FSTowel, end: LSTowel),
                       Container(
-                        margin: EdgeInsets.all(20),
-                        height: 700,
-                        color: Colors.black,
+                        margin: EdgeInsets.fromLTRB(0, 100, 20, 0),
+                        height: 600,
+                        color: Color.fromARGB(61, 29, 107, 60),
                       )
                     ]),
                     flex: 7),
@@ -298,6 +204,68 @@ class _HomeState extends State<Home> {
           )),
         ),
       ),
+    );
+  }
+}
+
+class ObjectDetectionTimeline extends StatelessWidget {
+  ObjectDetectionTimeline(
+      {Key? key, this.objectName, required this.start, required this.end})
+      : super(key: key);
+  final objectName;
+  int start;
+  int end;
+  final int progressWidth = 900;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+            width: 150,
+            padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Text(
+              objectName,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 16,
+                  color: checkToothBrushCondition(start, end)
+                      ? Color.fromARGB(255, 0, 0, 0)
+                      : Color.fromARGB(50, 0, 0, 0)),
+            )),
+        Container(
+            width: progressWidth.toDouble(),
+            padding: EdgeInsets.fromLTRB(0, 0, 50, 0),
+            child: Stack(
+              children: [
+                Container(
+                  alignment: Alignment.center,
+                  height: 15,
+                  color: checkToothBrushCondition(start, end)
+                      ? Color.fromARGB(105, 223, 223, 223)
+                      : Color.fromARGB(50, 223, 223, 223),
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  margin: EdgeInsets.fromLTRB(
+                      progressWidth * (start / totalDuration), 0, 0, 0),
+                  width: progressWidth *
+                      (end / totalDuration - start / totalDuration),
+                  height: 15,
+                  color: checkToothBrushCondition(start, end)
+                      ? Color.fromARGB(248, 73, 151, 77)
+                      : Color.fromARGB(50, 73, 151, 77),
+                ),
+                VideoProgressIndicator(controller,
+                    allowScrubbing: true,
+                    colors: VideoProgressColors(
+                      playedColor: Color.fromRGBO(0, 0, 0, 0),
+                      backgroundColor: Color.fromARGB(0, 0, 0, 0),
+                      bufferedColor: Color.fromRGBO(0, 0, 0, 0),
+                    ))
+              ],
+            )),
+      ],
     );
   }
 }
@@ -341,6 +309,10 @@ class _CustomFloatingBtnState extends State<CustomFloatingBtn> {
     return PopupMenuButton<MenuType>(
       onSelected: (value) {
         controller.pause();
+        itemselected = true;
+        selectedItem = value.index;
+        print(itemselected);
+        print(selectedItem);
       },
       icon: Icon(
         Icons.add_box_rounded,
@@ -354,6 +326,16 @@ class _CustomFloatingBtnState extends State<CustomFloatingBtn> {
               ))
           .toList(),
     );
+  }
+}
+
+bool checkToothBrushCondition(int start, int end) {
+  print(controller.value.position.inMilliseconds);
+  if (controller.value.position.inMilliseconds > start &&
+      controller.value.position.inMilliseconds < end) {
+    return true;
+  } else {
+    return false;
   }
 }
 
