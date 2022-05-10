@@ -37,6 +37,9 @@ dependencies:
   cupertino_icons: ^1.0.2
   simple_speed_dial: ^0.1.6
   circular_menu : ^1.2.3
+  rating_dialog: ^2.0.0
+
+
 
 dev_dependencies:
   flutter_test:

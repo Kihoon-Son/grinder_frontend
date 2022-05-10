@@ -3,6 +3,7 @@ import 'package:video_player/video_player.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'package:rating_dialog/rating_dialog.dart';
 
 enum MenuType { PurchaseLink, Information, Reviews, Add_comment }
 late VideoPlayerController controller;
@@ -39,7 +40,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  var showDetail = false;
   double fps = 24.0;
   double startX = 350;
   double startY = 500;
@@ -109,7 +109,8 @@ class _HomeState extends State<Home> {
         title: Text("Grinder"),
         backgroundColor: Color.fromRGBO(95, 131, 89, 1),
       ),
-      body: SizedBox(
+      body: Container(
+        color: Colors.white,
         child: SingleChildScrollView(
           child: Center(
               child: Container(
@@ -135,7 +136,7 @@ class _HomeState extends State<Home> {
                             width: 50,
                             height: 50,
                             child: checkToothBrushCondition(FSTooth, LSTooth)
-                                ? CustomFloatingBtn()
+                                ? CustomMarking()
                                 : null),
                       ],
                     ),
@@ -193,10 +194,9 @@ class _HomeState extends State<Home> {
                       ObjectDetectionTimeline(
                           objectName: "Towel", start: FSTowel, end: LSTowel),
                       Container(
-                        margin: EdgeInsets.fromLTRB(0, 100, 20, 0),
-                        height: 600,
-                        color: Color.fromARGB(61, 29, 107, 60),
-                      )
+                          margin: EdgeInsets.fromLTRB(0, 100, 20, 0),
+                          height: 600,
+                          child: ShowInfo())
                     ]),
                     flex: 7),
               ],
@@ -270,30 +270,73 @@ class ObjectDetectionTimeline extends StatelessWidget {
   }
 }
 
-class ShowDetailInfo extends StatelessWidget {
-  const ShowDetailInfo({Key? key, this.showDetail}) : super(key: key);
-  final showDetail;
-  show() {
-    print(showDetail);
-    return Image.asset(
-      'assets/images/sample1.png',
-      height: 600,
-      fit: BoxFit.fill,
-    );
-  }
-
-  notShow() {
-    return;
-  }
+class ShowInfo extends StatefulWidget {
+  const ShowInfo({Key? key}) : super(key: key);
 
   @override
+  State<ShowInfo> createState() => _ShowInfoState();
+}
+
+class _ShowInfoState extends State<ShowInfo> {
+  String imageName = "";
+  @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        color: Colors.black,
-        child: showDetail ? show() : notShow(),
-      ),
-    );
+    if (selectedItem == 0) {
+      imageName = 'assets/images/purchase_page.png';
+    } else if (selectedItem == 1) {
+      imageName = 'assets/images/detail_page.png';
+    }
+    if (selectedItem == 0 || selectedItem == 1) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: Offset(0, 3), // changes position of shadow
+            ),
+          ],
+        ),
+        child: Stack(
+          alignment: Alignment.topRight,
+          children: [
+            ClipRRect(
+                borderRadius: BorderRadius.circular(10.0),
+                child: Image.asset(
+                  imageName,
+                  alignment: Alignment.center,
+                )),
+            Container(
+              width: 20,
+              height: 20,
+              margin: EdgeInsets.fromLTRB(0, 5, 5, 0),
+              child: Stack(
+                children: [
+                  FloatingActionButton.extended(
+                      label: Text("X"),
+                      backgroundColor: Colors.red,
+                      onPressed: () {
+                        setState(() {
+                          itemselected = false;
+                          selectedItem = -1;
+                        });
+                      })
+                ],
+              ),
+            )
+          ],
+        ),
+      );
+    } else {
+      return SizedBox.shrink();
+    }
   }
 }
 
@@ -313,10 +356,23 @@ class _CustomFloatingBtnState extends State<CustomFloatingBtn> {
         selectedItem = value.index;
         print(itemselected);
         print(selectedItem);
+        if (value.index == 0) {
+          print("hello purchace");
+        } else if (value.index == 1) {
+          print("hello info");
+        } else if (value.index == 2) {
+          showDialog(
+            context: context,
+            barrierDismissible: true,
+            builder: (context) => _dialog(),
+          );
+        } else if (value.index == 3) {
+          print("hello comment");
+        }
       },
       icon: Icon(
         Icons.add_box_rounded,
-        size: 40.0,
+        size: 50.0,
         color: Color.fromARGB(255, 73, 122, 64),
       ),
       itemBuilder: (BuildContext context) => MenuType.values
@@ -325,6 +381,21 @@ class _CustomFloatingBtnState extends State<CustomFloatingBtn> {
                 child: Text(value.name),
               ))
           .toList(),
+    );
+  }
+}
+
+class CustomMarking extends StatelessWidget {
+  const CustomMarking({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [
+          CustomFloatingBtn(),
+        ],
+      ),
     );
   }
 }
@@ -359,3 +430,32 @@ class VideoFrameObject {
     this.width = width;
   }
 }
+
+Widget _dialog() => RatingDialog(
+      initialRating: 1.0,
+      // your app's name?
+      title: Text(
+        '리뷰 남기기',
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 25,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      // encourage your user to leave a high rating?
+      message: Text(
+        '제품에 대한 별점과 짧은 후기를 남겨주세요.',
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 15),
+      ),
+      // your app's logo?
+      // image: const FlutterLogo(size: 100),
+      submitButtonText: '제출',
+      commentHint: '제품에 대해 평가해주세요',
+      onCancelled: () => print('cancelled'),
+      onSubmitted: (response) {
+        print(response.comment);
+        itemselected = false;
+        selectedItem = -1;
+      },
+    );
