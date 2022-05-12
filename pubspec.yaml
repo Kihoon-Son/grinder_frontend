@@ -38,7 +38,7 @@ dependencies:
   simple_speed_dial: ^0.1.6
   circular_menu : ^1.2.3
   rating_dialog: ^2.0.0
-
+  file_picker: ^4.5.1
 
 
 dev_dependencies:
@@ -60,6 +60,7 @@ flutter:
   assets:
     - assets/videos/
     - assets/images/
+    - assets/images/thumbs/
     - assets/json/
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

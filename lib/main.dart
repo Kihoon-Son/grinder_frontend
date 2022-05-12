@@ -4,9 +4,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:rating_dialog/rating_dialog.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:grinder_frontend/products.dart';
 
-enum MenuType { PurchaseLink, Information, Reviews }
-List<String> menu = ["구매링크 추가", "상세 정보", "리뷰 추가"];
+enum MenuType { Information, RelatedProduct, Reviews }
+List<String> menu = ["제품 정보", "관련상품 추가", "리뷰 추가"];
 late VideoPlayerController controller;
 int totalDuration = 20800;
 
@@ -37,7 +39,7 @@ Product towel = Product(towelMarker, "타월", FSTowel, LSTowel);
 Review pre_review1 = new Review(4.5, "비누거품 양이 적절해요.", 10000);
 Review pre_review2 = new Review(4.0, "칫솔 솔이 생각보다 부드러움", 6500);
 
-List<Product> products = [candy, toothBrush, soap, towel];
+List<Product> allProducts = [candy, toothBrush, soap, towel];
 main() {
   runApp(MyApp());
 }
@@ -88,6 +90,20 @@ class _HomeState extends State<Home> {
     controller.initialize().then((value) {
       setState(() {});
     });
+  }
+
+  uploadVideo() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      final file = result.files.single;
+      setState(() {
+        // _controller = VideoPlayerController.file(file, videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true));
+        // _controller?.play();
+        // uploadFile(file.bytes as List<int>);
+      });
+    } else {
+      // User canceled the picker
+    }
   }
 
   int getCurrentFrameNumber() {
@@ -236,15 +252,21 @@ class _HomeState extends State<Home> {
                               Container(
                                 width: 10,
                                 height: 20,
+                                color: Color.fromARGB(248, 73, 151, 77),
+                              ),
+                              Text("  상품등장 타임라인   "),
+                              Container(
+                                width: 10,
+                                height: 20,
                                 color: Colors.yellow,
                               ),
                               Text("  리뷰 정보  "),
                               Container(
                                 width: 10,
                                 height: 20,
-                                color: Color.fromARGB(248, 73, 151, 77),
+                                color: Color.fromARGB(248, 0, 179, 255),
                               ),
-                              Text("  상품 타임라인")
+                              Text("  관련 상품")
                             ]),
                       ),
                       Container(
@@ -341,7 +363,7 @@ class ObjectDetectionTimeline extends StatelessWidget {
                   Container(
                     margin: EdgeInsets.fromLTRB(
                         progressWidth * (rv.time! / totalDuration), 0, 0, 0),
-                    width: 3,
+                    width: 10,
                     height: 15,
                     color: Color.fromARGB(255, 255, 242, 0),
                     child: Tooltip(
@@ -353,6 +375,20 @@ class ObjectDetectionTimeline extends StatelessWidget {
                             "\n" +
                             "의견: " +
                             rv.comment.toString()),
+                  ),
+                // for reviews
+                for (RelProduct rp in product.relProducts)
+                  Container(
+                    margin: EdgeInsets.fromLTRB(
+                        progressWidth * (rp.time! / totalDuration), 0, 0, 0),
+                    width: 10,
+                    height: 15,
+                    color: Color.fromARGB(255, 0, 179, 255),
+                    child: Tooltip(
+                        textStyle: TextStyle(fontSize: 15, color: Colors.white),
+                        height: 100,
+                        margin: EdgeInsets.all(20),
+                        message: "관련 상품: " + rp.productName.toString()),
                   ),
                 VideoProgressIndicator(controller,
                     allowScrubbing: true,
@@ -382,11 +418,11 @@ class _ShowInfoState extends State<ShowInfo> {
     TextEditingController _controller = new TextEditingController();
     String link;
 
-    if ((clickedPurchaseLinkProduct != "" && selectedItem == 0) ||
-        selectedItem == 1) {
-      if (selectedItem == 0) {
+    if ((clickedPurchaseLinkProduct != "" && selectedItem == 1) ||
+        selectedItem == 0) {
+      if (selectedItem == 1) {
         imageName = 'assets/images/purchase_page.png';
-      } else if (selectedItem == 1) {
+      } else if (selectedItem == 0) {
         String productName = "";
         if (clickedPurchaseLinkProductName == "사탕") {
           productName = "candy";
@@ -399,7 +435,7 @@ class _ShowInfoState extends State<ShowInfo> {
         }
         imageName = 'assets/images/' + productName + '_detail.png';
       }
-      if (selectedItem == 0 || selectedItem == 1) {
+      if (selectedItem == 1 || selectedItem == 0) {
         return Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -451,38 +487,8 @@ class _ShowInfoState extends State<ShowInfo> {
       } else {
         return SizedBox.shrink();
       }
-    } else if (clickedPurchaseLinkProduct == "" && selectedItem == 0) {
-      return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Container(
-          alignment: Alignment.center,
-          margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
-          child: TextField(
-            controller: _controller,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText:
-                  clickedPurchaseLinkProductName + ' 제품 Lifelike 구매링크 입력하기',
-              suffixIcon: IconButton(
-                onPressed: () {
-                  int index = 0;
-                  for (index = 0; index < products.length; index++) {
-                    if (products[index].name == clickedPurchaseLinkProductName)
-                      break;
-                  }
-                  products[index].purchaseLink = _controller.text;
-                  _controller.clear();
-                  setState(() {
-                    itemselected = false;
-                    selectedItem = -1;
-                    controller.play();
-                  });
-                },
-                icon: Icon(Icons.send),
-              ),
-            ),
-          ),
-        )
-      ]);
+    } else if (clickedPurchaseLinkProduct == "" && selectedItem == 1) {
+      return ProductPickerPage();
     } else {
       // TEXT box!!
       return SizedBox.shrink();
@@ -644,7 +650,7 @@ Widget _dialog(Product product) => RatingDialog(
       message: Text(
         '제품에 대한 별점과 짧은 후기를 남겨주세요.',
         textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 15),
+        style: const TextStyle(fontSize: 25),
       ),
       // your app's logo?
       // image: const FlutterLogo(size: 100),
@@ -683,6 +689,18 @@ class Review {
   }
 }
 
+class RelProduct {
+  String? originProductName;
+  String? productName;
+  int? time;
+
+  RelProduct(String originProductName, String productName, int time) {
+    this.originProductName = originProductName;
+    this.productName = productName;
+    this.time = time;
+  }
+}
+
 class Marker {
   double x = 0;
   double y = 0;
@@ -698,6 +716,7 @@ class Marker {
 class Product {
   Marker? marker = Marker(0, 0, false);
   List<Review> reviews = [];
+  List<RelProduct> relProducts = [];
   String name = "";
   String purchaseLink = "";
   int start = 0;
@@ -714,5 +733,75 @@ class Product {
     for (int i = 0; i < reviews.length; i++) {
       print(reviews[i].comment);
     }
+  }
+}
+
+class ProductPickerPage extends StatefulWidget {
+  ProductPickerPage({Key? key}) : super(key: key);
+  @override
+  State<ProductPickerPage> createState() => _ProductPickerPageState();
+}
+
+class _ProductPickerPageState extends State<ProductPickerPage> {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+        itemCount: products.length, itemBuilder: buildProductItem);
+  }
+
+  Widget buildProductItem(BuildContext context, int index) {
+    var product = products.elementAt(index);
+    return Center(
+      child: InkWell(
+        onTap: () => onProductSelect(product),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Image.asset(product.thumb, width: 100),
+                SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        product.name,
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w700),
+                      ),
+                      SizedBox(height: 15),
+                      Text(
+                        product.thumb,
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Divider()
+          ],
+        ),
+      ),
+    );
+  }
+
+  onProductSelect(Prod product) {
+    print("HI there!!!!");
+    print(clickedPurchaseLinkProductName);
+    print(product.name);
+    print(controller.value.position.inMilliseconds);
+    int index = 0;
+    for (index = 0; index < allProducts.length; index++) {
+      if (allProducts[index].name == clickedPurchaseLinkProductName) break;
+    }
+    allProducts[index].relProducts.add(RelProduct(clickedPurchaseLinkProduct,
+        product.name, controller.value.position.inMilliseconds));
+
+    setState(() {
+      itemselected = false;
+      selectedItem = -1;
+      controller.play();
+    });
   }
 }
