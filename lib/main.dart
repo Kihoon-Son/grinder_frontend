@@ -36,9 +36,6 @@ Product toothBrush = Product(toothbrushMarker, "칫솔", FSTooth, LSTooth);
 Product soap = Product(soapMarker, "비누", FSSoap, LSSoap);
 Product towel = Product(towelMarker, "타월", FSTowel, LSTowel);
 
-Review pre_review1 = new Review(4.5, "비누거품 양이 적절해요.", 10000);
-Review pre_review2 = new Review(4.0, "칫솔 솔이 생각보다 부드러움", 6500);
-
 List<Product> allProducts = [candy, toothBrush, soap, towel];
 main() {
   runApp(MyApp());
@@ -77,8 +74,6 @@ class _HomeState extends State<Home> {
   void initState() {
     loadVideoPlayer();
     readJson();
-    soap.reviews.add(pre_review1);
-    toothBrush.reviews.add(pre_review2);
     super.initState();
   }
 
@@ -475,7 +470,6 @@ class _ShowInfoState extends State<ShowInfo> {
                           setState(() {
                             itemselected = false;
                             selectedItem = -1;
-                            controller.play();
                           });
                         })
                   ],
